@@ -717,3 +717,79 @@ const SECTIONS = [
 
     ]
   },
+
+  {
+    id: "quick-reference",
+    icon: "⚡",
+    title: "Quick Reference",
+    subtitle: "Ohm's Law, component values, unit conversions, pinouts, and the debug checklist",
+    concepts: [
+
+      {
+        id: "ohms-law-table",
+        title: "Ohm's Law & Power — Full Formula Table",
+        tags: ["basic"],
+        chain: ["Know two values", "Pick the right formula", "Calculate the third", "Verify units", "Sanity-check the answer"],
+        blurb: "All the Ohm's Law and power formulas in one place. Two knowns always reveal the third. This is the most-reached-for reference in all of basic electronics.",
+        detail: `<strong>Ohm's Law triangle (V, I, R):</strong>\n• V = I × R\n• I = V / R\n• R = V / I\n\n<strong>Power triangle (P, V, I, R):</strong>\n• P = V × I\n• P = I² × R\n• P = V² / R\n\n<strong>LED resistor sizing (most common use):</strong>\nR = (Vsupply − Vforward) / Iled\nExample: 5V supply, red LED (Vf = 2.0V), 20mA target\nR = (5.0 − 2.0) / 0.020 = 150 Ω → use 150 Ω or 220 Ω\n\n<strong>Resistors in series:</strong>\nRtotal = R1 + R2 + R3 + ...\n\n<strong>Resistors in parallel:</strong>\n1/Rtotal = 1/R1 + 1/R2 + 1/R3\nTwo resistors: Rtotal = (R1 × R2) / (R1 + R2)\n\n<strong>Voltage divider:</strong>\nVout = Vin × R2 / (R1 + R2)\n\n<strong>RC time constant:</strong>\nτ = R × C (seconds, with Ohms and Farads)\nCharged to 63% in 1τ. Fully charged (99%) in 5τ.\n\n<strong>Power check for resistors:</strong>\nP = I² × R. Must be below resistor wattage rating.\nExample: 50mA through 100Ω → P = (0.05)² × 100 = 0.25W → use ½W resistor for safety.\n\n<strong>Battery runtime estimate:</strong>\nHours = mAh capacity / mA current draw\nExample: 2000mAh battery, 200mA draw → 10 hours`,
+        memory: `Two triangles cover everything:\nTriangle 1: V on top, I×R on bottom → cover what you want\nTriangle 2: P on top, V×I on bottom (P=I²R and P=V²/R are the derived forms)\n\nPrint these two triangles. Tape them to your workbench. Every circuit calculation starts here.`,
+        examTip: `Unit trap: always convert to base units before calculating. 20mA = 0.020A. 4.7kΩ = 4700Ω. Then calculate. Then convert back. R = 5V / 20mA is WRONG. R = 5V / 0.020A = 250Ω is right.`,
+        facts: ["V=IR", "P=VI", "P=I²R", "P=V²/R", "Series R: adds", "Parallel 2R: R1×R2/(R1+R2)", "τ=RC", "LED R=(Vs−Vf)/If", "Hours=mAh/mA"]
+      },
+
+      {
+        id: "components-cheat-sheet",
+        title: "Components Cheat Sheet",
+        tags: ["basic"],
+        chain: ["Need a component", "Find the right type here", "Check the typical value", "Order or pick from kit", "Build with confidence"],
+        blurb: "The most-used components in electronics with typical values, use cases, and what to stock. A starting point when you know what you need but not which specific value.",
+        detail: `<strong>Resistors to always have stocked (get 20+ of each):</strong>\n• 100 Ω — current limiting, gate resistors for MOSFETs\n• 330 Ω — LED resistor for 5V systems (20mA target)\n• 470 Ω — LED resistor for 5V (lower current, gentler)\n• 1 kΩ — BJT base resistor, general purpose\n• 10 kΩ — pull-ups, voltage dividers, everywhere\n\n<strong>Capacitors to stock:</strong>\n• 100 nF (0.1 µF) ceramic — decoupling cap, one per IC\n• 10 µF electrolytic — bulk power supply filtering\n• 100 µF electrolytic — power supply input filtering\n• 1000 µF electrolytic — motor power supply filtering\n\n<strong>Transistors and MOSFETs:</strong>\n• 2N2222 or BC547 NPN — general switching up to 600mA\n• IRLZ44N N-channel MOSFET — logic-level, 47A, heavy loads\n• 2N7000 N-channel MOSFET — logic-level, 200mA, small loads from 3.3V\n\n<strong>Diodes:</strong>\n• 1N4007 — general rectifier, flyback protection, 1A\n• 1N5819 Schottky — low dropout, polarity protection, fast\n\n<strong>Voltage regulators:</strong>\n• AMS1117-3.3 — 3.3V 1A linear\n• LM7805 — 5V 1A linear\n• LM2596 module — adjustable buck converter 1.25–35V 3A\n\n<strong>Useful ICs:</strong>\n• NE555 — timer IC, generates pulses and delays\n• LM358 — dual op-amp, signal amplification\n• L298N module — dual H-bridge motor driver`,
+        memory: `Starter kit rule: 10 each of 100Ω, 330Ω, 1kΩ, 10kΩ resistors. 20× 100nF ceramic caps. 10× 10µF electrolytic. 5× 2N2222 and 1N4007. One IRLZ44N. This covers 90% of beginner projects and costs under $10 from AliExpress.`,
+        examTip: `Buy a resistor kit (1Ω–1MΩ, 10 of each value, ~$10) and a capacitor kit (~$8) early. Having every value on hand eliminates the "I need a 470Ω but only have 330Ω" problem that derails projects mid-build.`,
+        facts: ["10kΩ = pull-up standard", "100nF = decoupling must-have", "330Ω = LED resistor 5V", "2N2222 = NPN switch", "IRLZ44N = MOSFET heavy load", "1N4007 = flyback diode", "AMS1117 = 3.3V regulator", "LM2596 = buck converter"]
+      },
+
+      {
+        id: "unit-conversions",
+        title: "Unit Conversions & Metric Prefixes",
+        tags: ["basic"],
+        chain: ["Value in datasheet has prefix", "Identify the prefix scale", "Convert to base unit", "Use in formula", "Verify the answer makes sense"],
+        blurb: "Electronics uses metric prefixes constantly. Getting them wrong by a factor of 1000 is the most common calculation mistake. Keep this table until the conversions are automatic.",
+        detail: `<strong>Metric prefixes — memorize these:</strong>\n• M (mega) = × 10⁶ = × 1,000,000\n  Example: 16 MHz = 16,000,000 Hz\n• k (kilo) = × 10³ = × 1,000\n  Example: 4.7 kΩ = 4,700 Ω\n• (base) = × 1\n  Example: 5V, 1A, 100Ω\n• m (milli) = × 10⁻³ = ÷ 1,000\n  Example: 20 mA = 0.020 A\n• µ (micro) = × 10⁻⁶ = ÷ 1,000,000\n  Example: 100 µF = 0.0001 F\n• n (nano) = × 10⁻⁹\n  Example: 100 nF = 0.0000001 F = 0.1 µF\n• p (pico) = × 10⁻¹²\n  Example: 22 pF capacitor\n\n<strong>Common conversions you'll use constantly:</strong>\n• 1 mA = 0.001 A (÷ 1000 to convert mA → A)\n• 1 kΩ = 1000 Ω (× 1000 to convert kΩ → Ω)\n• 100 nF = 0.1 µF (÷ 1000 to convert nF → µF)\n• 1 MHz = 1000 kHz = 1,000,000 Hz\n• 1 Wh = 3600 J\n\n<strong>The golden rule for Ohm's Law:</strong>\nAlways convert to base units (A, V, Ω, F, H) BEFORE calculating.\nThen convert the result back to a convenient prefix.\n\n<strong>PCB dimensions:</strong>\n• 1 inch = 25.4 mm\n• 1 mil = 0.001 inch = 0.0254 mm (used in PCB trace width specs)\n• 0.1 inch = 2.54 mm (standard through-hole pin spacing)`,
+        memory: `Order from small to large: pico, nano, micro, milli, [base], kilo, mega\n(p, n, µ, m, —, k, M)\n\nMilli = thousandths (millennium = 1000 years). Micro = tiny (microscope). Kilo = 1000 (kilometer). Mega = million (megabyte). Each step is 1000× the previous.\n\nMost common trap: 20mA in Ohm's Law. R = 5V / 20mA → WRONG. R = 5V / 0.020A = 250Ω → CORRECT.`,
+        examTip: `When a datasheet says "100nF decoupling capacitor" and you have a bag labeled "0.1µF" — those are the same cap. 100nF = 0.1µF. This trips up beginners constantly. Ceramic caps are often labeled in nF in datasheets and in µF on product listings.`,
+        facts: ["M=×10⁶", "k=×10³", "m=÷10³", "µ=÷10⁶", "n=÷10⁹", "mA→A: ÷1000", "kΩ→Ω: ×1000", "100nF = 0.1µF", "Always base units in formulas"]
+      },
+
+      {
+        id: "pinouts-reference",
+        title: "Common Pinouts & Interfaces",
+        tags: ["micro"],
+        chain: ["New board to wire up", "Find the right pins here", "Match protocol to pins", "Check voltage levels", "Connect and test"],
+        blurb: "Quick reference for the pins that matter on the most common boards. The first thing to check when a module isn't working is whether it's on the correct pins.",
+        detail: `<strong>Arduino Uno:</strong>\n• I2C: A4 (SDA), A5 (SCL)\n• SPI: 10 (SS/CS), 11 (MOSI), 12 (MISO), 13 (SCK)\n• UART: 0 (RX), 1 (TX) — shared with USB, avoid during upload\n• PWM (~): 3, 5, 6, 9, 10, 11\n• External interrupt: 2 and 3 only\n• Analog input: A0–A5 (10-bit, 0–5V)\n• Power: 5V pin (500mA max from USB), 3.3V pin (150mA max), VIN (7–12V)\n\n<strong>ESP32 DevKit v1 (30-pin version):</strong>\n• I2C: GPIO 21 (SDA), GPIO 22 (SCL) — default, software-configurable\n• SPI: GPIO 23 (MOSI), 19 (MISO), 18 (SCK), any pin (CS)\n• UART0: GPIO 1 (TX), 3 (RX) — shared with USB\n• DAC: GPIO 25, GPIO 26\n• ADC safe with WiFi: GPIO 32–39 (ADC1 only)\n• AVOID: GPIO 6–11 (connected to flash memory!)\n• Input-only (no pull-up): GPIO 34, 35, 36, 39\n• 3.3V output pin: 150mA max\n\n<strong>Raspberry Pi (40-pin header):</strong>\n• I2C: Pin 3 (SDA = GPIO 2), Pin 5 (SCL = GPIO 3)\n• SPI: Pin 19 (MOSI = GPIO 10), 21 (MISO = GPIO 9), 23 (CLK = GPIO 11), 24 (CE0 = GPIO 8)\n• UART: Pin 8 (TX = GPIO 14), Pin 10 (RX = GPIO 15)\n• 3.3V: Pins 1, 17 (500mA total from 3.3V rail)\n• 5V: Pins 2, 4\n• GND: Pins 6, 9, 14, 20, 25, 30, 34, 39\n• All GPIO = 3.3V — 5V input destroys GPIO`,
+        memory: `Quick cheat: I2C is always two wires SDA + SCL.\n• Arduino Uno: A4 + A5\n• ESP32: 21 + 22\n• Raspberry Pi: header pins 3 + 5\n\nWhen you forget: search "[board name] pinout" in Google Images. Every board has a pinout diagram available in seconds.`,
+        examTip: `ESP32 ADC gotcha: when WiFi is active (which it almost always is in IoT projects), ADC2 channels are unusable. Only use ADC1 pins (GPIO 32–39) for analog readings in WiFi projects. This trips up many ESP32 projects silently — readings become random or stuck.`,
+        facts: ["Arduino I2C: A4/A5", "ESP32 I2C: GPIO 21/22", "Pi I2C: header pins 3+5", "Arduino SPI: 10/11/12/13", "ESP32 avoid: GPIO 6–11", "ESP32 ADC1: GPIO 32–39 (WiFi safe)", "Pi GPIO: 3.3V max always", "Arduino PWM: 3,5,6,9,10,11"]
+      },
+
+      {
+        id: "troubleshooting-checklist",
+        title: "Troubleshooting Checklist",
+        tags: ["proto"],
+        chain: ["Something doesn't work", "Work through this list top to bottom", "Most problems caught in first 5 steps", "Fix one thing at a time", "Verify fix before moving on"],
+        blurb: "90% of hardware problems are the same 10 things. Work through this checklist methodically before spending hours on exotic causes. The most common bug is always the most obvious one.",
+        detail: `<strong>Work through these in order — stop when you find it:</strong>\n\n✓ 1. POWER — Measure VCC with multimeter. Is it the right voltage? Is GND connected to every component that needs it?\n\n✓ 2. SHORT CIRCUIT — Multimeter in continuity mode between VCC and GND. It should NOT beep. A beep = short circuit somewhere.\n\n✓ 3. VOLTAGE LEVELS — 3.3V components on 5V GPIO? 5V signal into ESP32/Pi input? Voltage mismatch = silent damage.\n\n✓ 4. ORIENTATION — LED backwards? Electrolytic cap backwards (+ to −)? IC in socket rotated? Diode reversed? Check every polarized component.\n\n✓ 5. UPLOAD — Did the sketch actually upload successfully? Correct board and port selected in IDE? No red error text at bottom?\n\n✓ 6. I2C DEVICE — Run I2C scanner. Device not found = wrong address, wrong SDA/SCL pins, missing pull-ups, or wrong voltage level.\n\n✓ 7. UART BAUD RATE — Does Serial.begin() match Serial Monitor baud rate setting? A mismatch shows garbage characters.\n\n✓ 8. TX/RX CROSSED — For UART: your TX → their RX. TX→TX = silence. This is wrong more often than you'd think.\n\n✓ 9. FLOATING INPUTS — Any input pin left unconnected reads random noise. Add INPUT_PULLUP or external pull-down.\n\n✓ 10. POWER SAG — Measure VCC while running at full load. Does it drop? Insufficient current → brownout resets.\n\n✓ 11. DECOUPLING CAPS — Missing 100nF near IC power pin = random glitches and resets under load.\n\n✓ 12. DATASHEET — Read the absolute max ratings and the pinout again. Carefully.`,
+        memory: `Troubleshooting order: Power → Polarity → Connections → Code → Datasheet.\n\nThe bug is almost never in the code. It's almost always a power issue, a wiring issue, or something in the datasheet you didn't read. After you find it, you'll feel silly — that's how you learn. Every experienced engineer has a story about spending 3 hours on a reversed LED.`,
+        examTip: `Keep a physical checklist card at your workbench. When frustrated, step away for 5 minutes, come back, and start at step 1 again. The answer is almost always in the first 5 steps. Fresh eyes catch what tired eyes skip.`,
+        facts: ["Check VCC first", "Continuity: VCC-GND should NOT beep", "INPUT_PULLUP for floats", "TX→RX not TX→TX", "I2C scanner every time", "100nF decoupling at every IC", "3.3V ≠ 5V tolerant", "Read the datasheet again"]
+      },
+
+    ]
+  }
+];
+
+// Build flat index for search
+const ALL_CONCEPTS = SECTIONS.flatMap(s =>
+  s.concepts.map(c => ({ ...c, sectionId: s.id, sectionTitle: s.title }))
+);

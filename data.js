@@ -553,3 +553,73 @@ const SECTIONS = [
 
     ]
   },
+
+  {
+    id: "control-systems",
+    icon: "🎛️",
+    title: "Control Systems",
+    subtitle: "Feedback loops, PID, and state machines — making hardware behave intelligently",
+    concepts: [
+
+      {
+        id: "feedback-loops",
+        title: "Feedback Loops",
+        tags: ["robo"],
+        chain: ["System has a target (setpoint)", "Sensor measures actual state", "Error = setpoint − actual", "Controller adjusts output", "Loop repeats continuously"],
+        blurb: "A feedback loop compares what's happening to what you want, then adjusts. It's the core idea behind every control system — from a household thermostat to a lab incubator to a drone.",
+        detail: `<strong>Open loop vs Closed loop:</strong>\n• Open loop: send a command and trust it happened. No verification. Stepper counting steps. Microwave running for 2 minutes. Simple but can't correct for disturbances.\n• Closed loop: measure the result, compare to target, adjust. Thermostat. Cruise control. Motor with encoder feedback. Self-correcting.\n\n<strong>Closed loop components:</strong>\n1. Setpoint (SP) — the desired value (e.g., 37.0°C)\n2. Sensor — measures the actual value (e.g., reads 36.2°C)\n3. Error — SP minus actual = 37.0 − 36.2 = +0.8°C\n4. Controller — decides what correction to apply based on the error\n5. Actuator — applies the correction (heater turns on)\n6. Plant — the system being controlled (incubator)\n7. Feedback path — sensor reading loops back to step 2\n\n<strong>Why closed loop is essential for lab automation:</strong>\nDisturbances happen constantly — someone opens the incubator door, ambient temperature changes, a reagent pump loads the system. Closed loop corrects for all of these automatically. Open loop cannot.\n\n<strong>On/Off control:</strong>\nSimplest closed loop: if error > 0, turn on actuator; if error ≤ 0, turn off. Works but causes oscillation around the setpoint (the system overshoots then overcorrects). Fine for a refrigerator. Not fine for a precision incubator.`,
+        memory: `Feedback loop = a thermostat. You set 20°C (setpoint). House cools to 18°C (sensor). Thermostat sees 2° error → turns on heat → temperature rises → turns off at 20°C. It doesn't just run the heater for a fixed time — it responds to what's actually happening.\n\nThe key word is "loop" — the output affects the input, which affects the output, forever.`,
+        examTip: `For lab automation, always design closed loop. Even a simple on/off thermostat is closed loop. The sensor is not optional — it's what makes the system self-correcting. Without feedback, every disturbance is a permanent error.`,
+        facts: ["Setpoint = target value", "Error = setpoint − actual", "Open loop = no feedback", "Closed loop = self-correcting", "On/Off = simplest controller", "Disturbance rejection = closed loop advantage", "Sensor is mandatory"]
+      },
+
+      {
+        id: "pid-control",
+        title: "PID Control",
+        tags: ["robo"],
+        chain: ["Error calculated", "P term = proportional response", "I term = accumulated past error", "D term = rate of error change", "Three terms summed = output correction"],
+        blurb: "PID (Proportional-Integral-Derivative) is the most widely used control algorithm in the world. Three terms work together to hit a target quickly, eliminate steady-state error, and prevent overshoot. Used in virtually every precision lab instrument.",
+        detail: `<strong>Output = Kp×e + Ki×∫e dt + Kd×de/dt</strong>\nWhere e = error (setpoint − measured value)\n\n<strong>P — Proportional:</strong>\nOutput proportional to current error. Large error = large correction.\n• Too little Kp → sluggish, slow to reach target\n• Too much Kp → overshoots and oscillates\n• P alone usually leaves a small steady-state error (the system settles slightly off target)\n\n<strong>I — Integral:</strong>\nOutput based on accumulated error over time. Eliminates the steady-state offset that P leaves behind.\n• Too much Ki → slow oscillations, integral "windup" (correction keeps building even after overshoot)\n\n<strong>D — Derivative:</strong>\nOutput based on rate of error change. Predicts where the error is going and dampens overshoot.\n• Amplifies noise — use a low-pass filter on the derivative term in noisy environments\n\n<strong>Tuning order:</strong>\n1. Start with I=0, D=0. Increase Kp until system oscillates.\n2. Back off Kp to ~60% of oscillation point.\n3. Add Ki to eliminate steady-state error.\n4. Add Kd to reduce overshoot if needed.\n\n<strong>Arduino PID library:</strong>\nBrett Beauregard's PID library handles all the math.\n#include <PID_v1.h>\nPID myPID(&input, &output, &setpoint, Kp, Ki, Kd, DIRECT);\n\n<strong>Lab uses:</strong> incubator temperature, hot plate control, flow rate, pH, motor speed.`,
+        memory: `P = how hard you steer toward the target.\nI = built-up frustration that you haven't reached it yet (closes the last gap).\nD = noticing you're approaching fast and easing off to avoid overshooting.\n\nThree drivers taking turns: P gets you close, I gets you exact, D keeps you from crashing past it.`,
+        examTip: `For a temperature controller, start with just P control — it's often good enough for basic incubators (±1–2°C). Add I if you need to hit the target exactly. Add D only if you see overshoot. Many lab instruments run PI only (D=0) because D amplifies sensor noise.`,
+        facts: ["Output = Kp·e + Ki·∫e + Kd·de/dt", "P = proportional", "I = eliminates steady-state error", "D = dampens overshoot", "Tune P first, then I, then D", "Arduino PID library exists", "PI control = common for temperature", "D amplifies noise"]
+      },
+
+      {
+        id: "state-machines",
+        title: "State Machines",
+        tags: ["robo"],
+        chain: ["System has discrete states", "One state active at a time", "Events trigger transitions", "Each state has defined behavior", "Predictable and scalable logic"],
+        blurb: "State machines model behavior as a set of named states with rules for moving between them. They're how robots decide what to do next — and they're far more organized and debuggable than nested if-else statements.",
+        detail: `<strong>Finite State Machine (FSM) — key concepts:</strong>\n• States: the distinct conditions the system can be in (IDLE, RUNNING, ERROR, CALIBRATING)\n• Transitions: rules for moving between states (triggered by events or conditions)\n• Events: inputs that trigger transitions (button press, sensor threshold crossed, timer expired)\n• One and only one state is active at a time\n\n<strong>Example — lab pump controller:</strong>\nStates: IDLE → PRIMING → DISPENSING → FLUSHING → IDLE\n• Event "start button" → IDLE transitions to PRIMING\n• Event "prime complete" → PRIMING transitions to DISPENSING\n• Event "volume reached" → DISPENSING transitions to FLUSHING\n• Event "flush complete" → FLUSHING transitions to IDLE\n\n<strong>Why not just if/else chains?</strong>\nif/else gets unmanageable fast. State machines are:\n• Predictable — you always know what state the system is in\n• Debuggable — log state transitions to Serial and you see exactly what happened\n• Extensible — add a new state without breaking existing ones\n\n<strong>Arduino implementation:</strong>\nenum State { IDLE, RUNNING, ERROR };\nState currentState = IDLE;\nswitch(currentState) {\n  case IDLE: ... break;\n  case RUNNING: ... break;\n  case ERROR: ... break;\n}`,
+        memory: `State machine = a vending machine. It's in a state (waiting for money, item selected, dispensing). It only does things appropriate for its current state. Put money in = transitions to "select item" state. You can't get a drink before paying — the machine is simply not in that state yet.\n\nDraw the states as circles and the transitions as arrows. That diagram IS your logic.`,
+        examTip: `For any lab automation sequence (prime → dispense → flush → idle), a state machine is the right architecture. Log every state transition with millis() timestamps to Serial. When something goes wrong, the log tells you exactly which state failed and how long it took.`,
+        facts: ["One active state at a time", "States + transitions + events", "enum + switch = implementation", "Predictable behavior", "Replaces if-else chaos", "Log transitions for debugging", "Draw as diagram first", "Scales to complex behavior"]
+      },
+
+      {
+        id: "open-closed-loop",
+        title: "Open Loop vs Closed Loop",
+        tags: ["robo"],
+        chain: ["Command sent to actuator", "Open loop: trust and hope", "Closed loop: measure the result", "Error calculated", "Correction applied and repeated"],
+        blurb: "Open loop applies a command and hopes the result is correct. Closed loop measures the result and corrects continuously. Precision lab hardware almost always needs closed loop — the real world doesn't behave perfectly.",
+        detail: `<strong>Open loop — when it works:</strong>\n• Stepper motor counting steps (assumes no missed steps)\n• Watering system running for 30 minutes by timer\n• Microwave heating for 2 minutes\nWorks when: the relationship between command and result is consistent, predictable, and disturbances are negligible.\n\n<strong>Open loop — when it fails:</strong>\n• Stepper stalls under load → loses position silently\n• Watering runs 30 min but soil was already saturated\n• Motor slows as battery depletes → movement is shorter than expected\n\n<strong>Closed loop — when you need it:</strong>\n• Temperature control (door opened = disturbance = open loop fails)\n• Precise liquid dispensing (tube wear, viscosity changes → use flow sensor feedback)\n• Motor speed under varying load (encoder feedback corrects for load changes)\n• pH control (CO2 from cells changes pH continuously)\n\n<strong>Encoders for DC motors:</strong>\nOptical or magnetic encoders count rotations and report back to the MCU. Quadrature encoders detect direction too. With encoder feedback, a DC motor can be precisely speed-controlled or position-controlled — combining DC motor cost with stepper-like precision.\n\n<strong>Rule of thumb:</strong>\nOpen loop for simple, repeatable, low-stakes tasks. Closed loop for anything that needs accuracy, must handle disturbances, or controls a safety-relevant quantity (temperature, pressure, pH).`,
+        memory: `Open loop = driving with your eyes closed (you steer based on memory of the road). Closed loop = driving with eyes open (you see where you are and correct constantly).\n\nFor a toy conveyor belt, eyes closed is fine. For a biosafety cabinet or cell culture incubator, you absolutely need eyes open.`,
+        examTip: `Encoders are the key upgrade that takes a cheap DC motor from "spins approximately" to "moves precisely." For a syringe pump: use a stepper (open loop, precise by counting steps) or a DC motor + encoder (closed loop). Both work — stepper is simpler, encoder is more robust under load.`,
+        facts: ["Open loop = no feedback", "Closed loop = sensor corrects", "Stepper = open loop (usually)", "Encoder = position feedback", "Disturbance rejection = closed loop only", "PID = closed loop algorithm", "Flow sensor = liquid feedback", "Encoder types: optical, magnetic"]
+      },
+
+      {
+        id: "realtime-timing",
+        title: "Real-Time Timing",
+        tags: ["micro"],
+        chain: ["Task must happen on schedule", "delay() blocks everything else", "millis() checks time non-blocking", "Timer interrupt fires precisely", "Multiple tasks run concurrently"],
+        blurb: "Real-time means on time, not just fast. Lab automation tasks have timing requirements — sensor reads every 100ms, heater PWM at 1Hz, pump pulse for exactly 500ms. Understanding non-blocking timing is essential.",
+        detail: `<strong>The delay() problem:</strong>\ndelay(1000) freezes the entire MCU for 1 second. During that second: no sensor reads, no button response, no serial receive, no PWM updates. For a single blink sketch, fine. For a lab controller managing temperature, pumps, and a display simultaneously — completely unusable.\n\n<strong>Non-blocking timing with millis():</strong>\nunsigned long lastSensorRead = 0;\nconst unsigned long SENSOR_INTERVAL = 100;  // ms\n\nvoid loop() {\n  if (millis() - lastSensorRead >= SENSOR_INTERVAL) {\n    lastSensorRead = millis();\n    readAndLogSensor();\n  }\n  // All other code runs freely here\n  checkButtons();\n  updateDisplay();\n  runPumpLogic();\n}\n\n<strong>millis() overflow:</strong>\nAfter ~49.7 days, millis() rolls over to 0. The subtraction trick (millis() - lastTime) handles this correctly as long as you use unsigned long — never use signed int for millis() math.\n\n<strong>Timer interrupts (for precision):</strong>\nFire an ISR at exact regular intervals regardless of what loop() is doing. TimerOne library for Arduino. Better than millis() for timing-critical tasks like encoder reading or precise pump pulses.\n\n<strong>FreeRTOS on ESP32:</strong>\nESP32 has FreeRTOS built in. Create multiple tasks with priorities — temperature control task, network task, display task — all running concurrently on the dual cores.`,
+        memory: `delay() = telling your program to sit in a corner for 1 second, ignoring everything.\nmillis() = checking a clock on the wall occasionally while still doing other work.\n\nFor any lab controller: NEVER use delay() in the main loop. Use millis() for everything. The pattern is always: "has enough time passed? → yes: do the thing, update the timestamp."`,
+        examTip: `Always declare lastTime variables as unsigned long, not int or long. And always use the pattern (millis() - lastTime >= interval) — not (millis() >= lastTime + interval), which breaks on overflow. This is one of the most common subtle bugs in Arduino code.`,
+        facts: ["delay() = blocks everything", "millis() = non-blocking", "unsigned long for millis()", "millis() overflows at ~49.7 days", "Subtraction handles overflow", "Timer interrupt = precise", "FreeRTOS = ESP32 built-in", "Multiple tasks with priorities"]
+      },
+
+    ]
+  },

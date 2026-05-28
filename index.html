@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CircuitGuide — Electronics & Robotics Path</title>
+  <meta name="description" content="Learn electronics and robotics the connected way. From Ohm's Law to building your own lab hardware — short, real, and built for how your brain works.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Header ── -->
+  <header>
+    <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+    <a class="logo" href="#" onclick="location.reload()">Circuit<span>Guide</span></a>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        type="search"
+        id="search"
+        placeholder="Search concepts — Ohm's law, I2C, PID, servo..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+    </div>
+    <div class="header-right">
+      <div class="progress-pill" id="progressPill">0/0 learned</div>
+    </div>
+  </header>
+
+  <!-- ── Sidebar ── -->
+  <div class="sidebar" id="sidebar" role="navigation" aria-label="Sections"></div>
+
+  <!-- ── Main ── -->
+  <main id="main" role="main"></main>
+
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -365,3 +365,85 @@ const SECTIONS = [
 
     ]
   },
+
+  {
+    id: "microcontrollers",
+    icon: "🤖",
+    title: "Microcontrollers",
+    subtitle: "The brains of your hardware — what they are, which to choose, and how to program them",
+    concepts: [
+
+      {
+        id: "what-is-mcu",
+        title: "What is a Microcontroller?",
+        tags: ["micro"],
+        chain: ["CPU + memory + I/O on one chip", "Runs one program in a loop", "Controls physical pins directly", "No OS needed", "The brain of every embedded device"],
+        blurb: "A microcontroller (MCU) is a complete computer on a single chip — processor, memory, and I/O pins all integrated. It runs your code and interfaces with the physical world directly.",
+        detail: `<strong>Microcontroller vs Microprocessor:</strong>\n• Microprocessor (laptop/desktop CPU): powerful, but needs external RAM, storage, I/O chips, and an operating system to do anything.\n• Microcontroller: everything integrated on one chip — flash memory (stores program), SRAM (variables), and GPIO pins. Runs one program directly on power-up. No OS needed.\n\n<strong>Key specs to know for any MCU:</strong>\n• Clock speed (MHz) — how fast it executes instructions\n• Flash memory — non-volatile storage where your program lives (survives power off)\n• SRAM — working memory for variables (lost on power off)\n• EEPROM — tiny non-volatile storage for settings (some MCUs)\n• GPIO pins — General Purpose Input/Output: the physical connection to the world\n• ADC channels — how many analog inputs\n• Communication interfaces — UART, I2C, SPI, USB built-in\n• Operating voltage — 3.3V or 5V (critical for compatibility)\n\n<strong>Common MCU families:</strong>\n• ATmega328P — Arduino Uno/Nano (8-bit, 16 MHz, 5V)\n• RP2040 — Raspberry Pi Pico (dual-core ARM, 133 MHz, 3.3V)\n• ESP32 — WiFi/BT built-in (dual-core, 240 MHz, 3.3V)\n• STM32 — professional, used in drones and industrial (various)\n• ATtiny85 — tiny, low power, 8 pins total`,
+        memory: `Microcontroller = a Swiss Army knife computer. Not as powerful as a laptop, but it's self-contained, uses almost no power, and has physical pins you can connect the real world to. Plug in a sensor, read a value, flip a pin, control a motor. That's the whole deal.\n\nFlash = the hard drive (permanent). SRAM = the desk (temporary workspace). GPIO = the hands.`,
+        examTip: `Flash stores your compiled program. SRAM holds variables at runtime. On Arduino Uno: 32KB Flash (plenty), 2KB SRAM (very tight). Running out of SRAM causes random crashes and weird behavior — use F() macro to keep string literals in Flash: Serial.println(F("Hello"));`,
+        facts: ["CPU+Flash+SRAM in one chip", "Flash = program storage", "SRAM = variables (volatile)", "GPIO = physical pins", "No OS needed", "3.3V or 5V systems", "ATmega328P = Arduino Uno"]
+      },
+
+      {
+        id: "arduino",
+        title: "Arduino",
+        tags: ["micro"],
+        chain: ["ATmega328P chip on a board", "USB connection built in", "Write C++ in Arduino IDE", "Click upload", "Program runs immediately and forever"],
+        blurb: "Arduino is the most beginner-friendly microcontroller platform. Write code, click upload, it runs. The starting point for almost everyone in the maker and robotics world.",
+        detail: `<strong>Arduino Uno — the classic starting board:</strong>\n• Chip: ATmega328P\n• Clock: 16 MHz\n• Voltage: 5V logic\n• Flash: 32 KB\n• SRAM: 2 KB\n• Digital I/O: 14 pins (6 with PWM, marked ~)\n• Analog inputs: 6 (10-bit ADC, 0–5V)\n• I2C: A4 (SDA), A5 (SCL)\n• SPI: 10 (SS), 11 (MOSI), 12 (MISO), 13 (SCK)\n• UART: pins 0 (RX) and 1 (TX), shared with USB\n• Power input: 7–12V via barrel jack (onboard regulator to 5V)\n\n<strong>The two required functions:</strong>\nvoid setup() — runs once at boot. Initialize pins, start Serial, configure sensors.\nvoid loop() — runs forever after setup(). Your main logic lives here.\n\n<strong>Other popular Arduino boards:</strong>\n• Arduino Nano — same chip as Uno, breadboard-friendly small form factor\n• Arduino Mega 2560 — 54 digital pins, 16 analog, 4 UARTs. Good for complex projects.\n• Arduino Pro Mini — no USB chip (cheaper/smaller, needs external programmer)\n\n<strong>Shields:</strong> add-on boards that stack on top — motor shield, relay shield, WiFi shield, etc.`,
+        memory: `Arduino = a LEGO starter kit for electronics. Pre-built, well-documented, enormous community. Every component you can buy has an Arduino tutorial and library already written. Start here.\n\nsetup() = the morning routine (done once). loop() = the workday (runs forever). That's the entire structure.`,
+        examTip: `2 KB SRAM on the Uno fills up fast. Symptoms of full SRAM: program runs briefly then crashes or behaves randomly. Fix: use the F() macro for string literals, avoid String objects (use char arrays), minimize global variables.`,
+        facts: ["ATmega328P chip", "16 MHz, 5V", "32KB Flash, 2KB SRAM", "14 digital pins, 6 analog", "setup() once, loop() forever", "I2C: A4/A5", "PWM: 3,5,6,9,10,11", "Free IDE"]
+      },
+
+      {
+        id: "raspberry-pi",
+        title: "Raspberry Pi",
+        tags: ["micro"],
+        chain: ["ARM CPU on a board", "Linux OS runs from SD card", "40-pin GPIO header", "Python or any language", "WiFi and Ethernet built in"],
+        blurb: "Raspberry Pi is a full Linux computer the size of a credit card. Unlike Arduino it runs a real OS, browses the web, runs Python, and handles complex computation — but it's not great at hard real-time hardware control.",
+        detail: `<strong>Raspberry Pi 4 Model B (current standard):</strong>\n• CPU: ARM Cortex-A72, quad-core, 1.5 GHz\n• RAM: 1, 2, 4, or 8 GB\n• Storage: microSD card (your hard drive)\n• OS: Raspberry Pi OS (Debian Linux)\n• Connectivity: WiFi 802.11ac, Bluetooth 5.0, Gigabit Ethernet\n• Ports: 2× USB 3.0, 2× USB 2.0, 2× micro-HDMI, USB-C power\n• GPIO: 40-pin header (26 GPIO + power/GND pins), all at 3.3V\n\n<strong>Raspberry Pi vs Arduino:</strong>\n• Pi: runs Python, connects to internet, does image processing, databases, AI inference. NOT reliable for microsecond-precise timing.\n• Arduino/ESP32: simple, real-time, reliable, low power, wakes instantly. Can't browse the internet.\n• Best of both: use ESP32 for timing-critical sensor/actuator tasks, Pi for data processing, networking, and UI.\n\n<strong>Important Pi GPIO notes:</strong>\n• All GPIO pins are 3.3V — applying 5V to any GPIO pin destroys it\n• No built-in ADC — for analog sensors, use MCP3008 (SPI) or ADS1115 (I2C)\n• Max current per GPIO: 16 mA. Max total from all GPIO: 50 mA.\n• I2C: GPIO 2 (SDA), GPIO 3 (SCL) — pins 3 and 5 on header\n• SPI: GPIO 10 (MOSI), 9 (MISO), 11 (CLK), 8 (CE0)`,
+        memory: `Arduino = a dedicated calculator (does one thing perfectly, reliably). Raspberry Pi = a tiny laptop (does everything, but sometimes fumbles precise timing).\n\nFor your lab: Pi handles the database, web dashboard, and AI. ESP32/Arduino handles the sensors and actuators. They talk over UART or USB Serial.`,
+        examTip: `Never apply 5V to a Raspberry Pi GPIO pin. The Pi uses 3.3V logic — 5V input fries the pin or the whole SoC. For connecting to 5V devices, use a voltage divider (for inputs) or a level shifter IC (for bidirectional signals).`,
+        facts: ["Full Linux OS", "ARM quad-core 1.5GHz", "WiFi + BT built-in", "GPIO = 3.3V ONLY", "No built-in ADC", "microSD = storage", "I2C: pins 3+5 (GPIO 2+3)", "16mA max per GPIO pin"]
+      },
+
+      {
+        id: "esp32",
+        title: "ESP32",
+        tags: ["micro"],
+        chain: ["Dual-core ARM chip", "WiFi and Bluetooth built in", "3.3V logic", "Programs like Arduino", "Perfect for IoT and lab wireless sensors"],
+        blurb: "ESP32 combines Arduino-style programming with built-in WiFi and Bluetooth. For any project that needs wireless connectivity — lab sensors reporting to a dashboard, remote-controlled hardware — ESP32 is the go-to choice.",
+        detail: `<strong>ESP32 core specs:</strong>\n• CPU: Xtensa dual-core LX6, up to 240 MHz\n• RAM: 520 KB SRAM (on-chip)\n• Flash: 4 MB (external, on module)\n• WiFi: 802.11 b/g/n (2.4 GHz)\n• Bluetooth: Classic 4.2 + BLE 4.2\n• GPIO: 34 pins (some input-only: 34–39)\n• ADC: 18 channels, 12-bit resolution\n• DAC: 2 channels (GPIO 25, 26)\n• UART, I2C, SPI, I2S, CAN all supported\n• Operating voltage: 3.3V (USB input accepted via onboard regulator)\n\n<strong>Critical 3.3V warning:</strong>\nGPIO pins are 3.3V maximum — NOT 5V tolerant. Connecting a 5V signal directly to an ESP32 GPIO destroys it. Use a voltage divider or level shifter.\n\n<strong>ADC quirk:</strong>\nADC2 channels (GPIO 0, 2, 4, 12–15, 25–27) conflict with WiFi. When WiFi is active, only use ADC1 channels (GPIO 32–39).\n\n<strong>Common ESP32 boards:</strong>\nESP32 DevKit v1, NodeMCU-32S, WEMOS LOLIN32, Adafruit HUZZAH32\n\n<strong>For lab automation:</strong>\nESP32 connects sensors to your WiFi → publishes data via MQTT → Node-RED or Home Assistant processes it → Grafana dashboard displays it. All wireless, all automated.`,
+        memory: `ESP32 = Arduino + WiFi + Bluetooth fused into one chip. Give your sensor project internet access with no extra hardware. It's 3.3V (important!) and programs just like Arduino using the same IDE.\n\nESP32 > ESP8266: faster, more RAM, BT support, more GPIO. Use ESP32 for all new wireless projects.`,
+        examTip: `GPIO 6–11 on the ESP32 are connected to the internal flash memory chip — never use them for anything else or you'll corrupt the flash and brick the board. GPIO 34–39 are input-only (no internal pull-ups). When using WiFi, avoid ADC2 pins for analog readings.`,
+        facts: ["Dual-core 240MHz", "WiFi + BT built-in", "3.3V GPIO — NOT 5V tolerant", "12-bit ADC (18 channels)", "Avoid GPIO 6–11 (flash)", "ADC2 conflicts with WiFi", "DAC: GPIO 25, 26", "4MB Flash, 520KB SRAM"]
+      },
+
+      {
+        id: "gpio-pins",
+        title: "GPIO Pins",
+        tags: ["micro"],
+        chain: ["Pin on microcontroller", "Configure as input or output", "Read sensors or control devices", "Voltage level = the signal", "Current limits must be respected"],
+        blurb: "GPIO (General Purpose Input/Output) pins are the physical interface between your code and the real world. Set them as outputs to control things, or inputs to read sensors and buttons.",
+        detail: `<strong>Pin modes:</strong>\n• OUTPUT — set HIGH (VCC) or LOW (GND) to control LEDs, transistors, relays\n• INPUT — read HIGH or LOW from a button, sensor, or digital output\n• INPUT_PULLUP — same as INPUT but enables the MCU's internal pull-up resistor (~20–50 kΩ to VCC). Button connects pin to GND when pressed → reads LOW. When not pressed → reads HIGH.\n• Analog input (ADC) — read a voltage as a number (0–1023 on Arduino 10-bit)\n• PWM output — generate a PWM waveform (motor speed, LED brightness, servo)\n\n<strong>Current limits — non-negotiable:</strong>\n• Arduino Uno: max 40 mA per pin, 200 mA total from all GPIO\n• ESP32: max 12 mA per pin\n• Raspberry Pi: max 16 mA per pin, 50 mA total\nNEVER connect a motor, solenoid, or high-current LED directly to a GPIO pin. Use a transistor or MOSFET.\n\n<strong>Floating inputs:</strong>\nAn unconnected input pin reads random noise. Always use INPUT_PULLUP (or an external pull-down resistor) to hold the pin at a known state.\n\n<strong>Voltage levels:</strong>\n• Arduino Uno GPIO: 5V\n• ESP32 GPIO: 3.3V\n• Raspberry Pi GPIO: 3.3V\nConnecting a 5V output to a 3.3V input can destroy the 3.3V device.`,
+        memory: `GPIO pin = a light switch that's also a sensor. In output mode, your code flips it (HIGH/LOW). In input mode, something external flips it and your code reads which way it is.\n\nAlways check the current limit. GPIO is strong enough for an LED, not a motor. Exceeding the limit doesn't blow a fuse — it silently damages the chip.`,
+        examTip: `INPUT_PULLUP is your best friend for buttons. Connect one side of the button to the pin, the other to GND. Use INPUT_PULLUP in pinMode(). The pin reads HIGH when not pressed, LOW when pressed. No external resistor needed.`,
+        facts: ["OUTPUT: HIGH/LOW", "INPUT_PULLUP: internal resistor", "Arduino max: 40mA/pin", "ESP32 max: 12mA/pin", "Pi max: 16mA/pin", "Floating = random reads", "Never motor directly to GPIO", "3.3V ≠ 5V compatible"]
+      },
+
+      {
+        id: "mcu-programming",
+        title: "Microcontroller Programming Basics",
+        tags: ["micro"],
+        chain: ["Write code in IDE", "Compile to machine code", "Upload over USB", "MCU runs program on boot", "Debug with Serial Monitor"],
+        blurb: "Microcontroller programming follows a simple pattern: setup once, loop forever, talk to hardware through built-in functions. The C++ looks intimidating but the core is just a few functions you'll use constantly.",
+        detail: `<strong>Program structure (Arduino / ESP32):</strong>\nvoid setup() {\n  Serial.begin(115200);     // start serial at 115200 baud\n  pinMode(13, OUTPUT);       // set pin 13 as output\n}\nvoid loop() {\n  digitalWrite(13, HIGH);    // pin 13 = 5V\n  delay(1000);               // wait 1000 ms\n  digitalWrite(13, LOW);     // pin 13 = 0V\n  delay(1000);\n}\n\n<strong>Key functions:</strong>\n• pinMode(pin, mode) — set OUTPUT, INPUT, or INPUT_PULLUP\n• digitalWrite(pin, HIGH/LOW) — set a digital output\n• digitalRead(pin) — read a digital pin (returns 0 or 1)\n• analogRead(pin) — read analog (returns 0–1023 on Uno)\n• analogWrite(pin, 0–255) — PWM output\n• delay(ms) — pause everything for N milliseconds\n• millis() — milliseconds since boot (use this instead of delay for non-blocking timing)\n\n<strong>Non-blocking timing with millis():</strong>\nunsigned long lastTime = 0;\nvoid loop() {\n  if (millis() - lastTime >= 1000) {\n    lastTime = millis();\n    readSensor();  // runs every 1 second\n  }\n  // other code runs freely here\n}\n\n<strong>Data types to know:</strong>\nint (16-bit on AVR), long, float, bool, char, byte, unsigned long (for millis())`,
+        memory: `Arduino programming = the same 3-act play every time:\n1. setup() — set the stage (once)\n2. loop() — perform the show (forever)\n3. Functions — your props and costumes\n\ndelay() = freezing the entire program. millis() = checking a clock while still doing other work. For anything serious, always use millis() instead of delay().`,
+        examTip: `delay() blocks everything — no sensor reads, no button checks, no serial receive. Once you understand millis()-based timing, you'll never use delay() in production code again. The pattern: check if (millis() - lastTime >= interval), do the thing, update lastTime.`,
+        facts: ["setup() = once", "loop() = forever", "delay() = blocking", "millis() = non-blocking", "analogRead: 0–1023", "analogWrite: 0–255", "unsigned long for millis()", "Serial.println() = debug tool"]
+      },
+
+    ]
+  },

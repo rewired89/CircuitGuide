@@ -201,3 +201,85 @@ const SECTIONS = [
 
     ]
   },
+
+  {
+    id: "circuits",
+    icon: "🔌",
+    title: "Circuits",
+    subtitle: "How components connect and interact — the rules that govern every circuit",
+    concepts: [
+
+      {
+        id: "series-parallel",
+        title: "Series vs Parallel",
+        tags: ["basic"],
+        chain: ["Components connected", "Series = one path for current", "Parallel = multiple paths", "Current splits vs voltage splits", "Different rules for each"],
+        blurb: "Series circuits share the same current. Parallel circuits share the same voltage. Understanding which is which is the foundation of reading and building any circuit.",
+        detail: `<strong>Series connection:</strong>\nComponents connected end-to-end — one single path for current to flow.\n• Same current flows through all components\n• Voltages add up: Vtotal = V1 + V2 + V3\n• Resistances add up: Rtotal = R1 + R2 + R3\n• One component fails → whole circuit breaks\n• Example: old-style Christmas lights (one bulb dies → all go out)\n\n<strong>Parallel connection:</strong>\nComponents connected across the same two nodes.\n• Same voltage across all components\n• Currents add up: Itotal = I1 + I2 + I3\n• Resistance decreases: 1/Rtotal = 1/R1 + 1/R2 + 1/R3\n• One component fails → others keep working\n• Example: wall outlets (all at 120 V, devices draw independent current)\n\n<strong>Two resistors in parallel shortcut:</strong>\nRtotal = (R1 × R2) / (R1 + R2)\n\n<strong>In real circuits:</strong>\nMost circuits are a mix of both. Learn to identify which sections are series and which are parallel, then apply the right rules to each.`,
+        memory: `Series = beads on a string. Break one bead = the whole string breaks. Parallel = lanes on a highway. Close one lane = other lanes still flow.\n\nSeries: voltages add, resistance adds, current same.\nParallel: currents add, resistance drops, voltage same.`,
+        examTip: `LEDs should almost always be in parallel (each with its own resistor), not series. Series LEDs share current — one failing open kills them all, and matching forward voltages is tricky. Parallel LEDs each get full voltage and are independent.`,
+        facts: ["Series: same current", "Parallel: same voltage", "Series R: adds", "Parallel R: decreases", "Parallel 2R: R1×R2/(R1+R2)", "Series fail = all off", "Parallel fail = others ok"]
+      },
+
+      {
+        id: "breadboards",
+        title: "Breadboards",
+        tags: ["basic"],
+        chain: ["Need to prototype without soldering", "Push components into holes", "Rows internally connected", "Power rails along edges", "Test and modify freely"],
+        blurb: "Breadboards let you build circuits without soldering. Components push into holes that are electrically connected in rows. The essential tool for learning and prototyping.",
+        detail: `<strong>Breadboard anatomy:</strong>\n• Power rails (top & bottom edges): long horizontal rows connected along their full length, marked + (red) and − (blue). Connect VCC and GND here first.\n• Component area: holes arranged in columns A–E and F–J. Each group of 5 (same row letter, same number) is electrically connected. The center channel divides A–E from F–J.\n• Center dividing channel: ICs (chips) straddle this gap — each leg in its own row on either side.\n\n<strong>How current flows:</strong>\nEverything inserted into the same numbered row (e.g., row 14, columns A through E) is electrically connected. Insert a resistor in 14A and an LED in 14C → they're connected.\n\n<strong>Common mistakes:</strong>\n• Forgetting to connect power rails to your actual power source\n• Inserting a component across the center divider accidentally\n• Wires bridging rows they shouldn't\n• On half-size breadboards: power rails are sometimes split in the middle (not continuous) — check with a multimeter\n• Loose connections: push components in firmly\n\n<strong>Conventions:</strong>\nRed wire = VCC. Black wire = GND. Keep wires short. Label rows with tape if your circuit gets complex.`,
+        memory: `Breadboard = a pegboard where every row of 5 holes is secretly connected underground. Plug anything into the same row = connected. The center gap = a river you can't cross (great for chips to straddle).\n\nAlways connect your power rails to your supply FIRST. Most "it doesn't work" issues are an unconnected power rail.`,
+        examTip: `Before debugging any breadboard circuit, use your multimeter in continuity mode to verify: (1) VCC rail has voltage, (2) GND rail is connected, (3) the components you think are connected actually are. Breadboard connections are physical and can be loose.`,
+        facts: ["Rows of 5 connected", "Center gap separates halves", "Rails = VCC/GND", "Red = VCC, Black = GND", "No soldering needed", "Check rail continuity", "ICs straddle center gap"]
+      },
+
+      {
+        id: "schematics",
+        title: "Reading Schematics",
+        tags: ["basic"],
+        chain: ["Circuit drawn on paper", "Standard symbols used", "Lines = wires", "Dot at crossing = connected", "Follow current from supply to ground"],
+        blurb: "Schematics are circuit diagrams using standard symbols. They show logical connections, not physical layout. Learning to read them unlocks every tutorial, datasheet, and PCB design you'll ever encounter.",
+        detail: `<strong>Common schematic symbols:</strong>\n• Battery / VCC: labeled +5V, 3V3, VCC, or VBAT — all pins with the same label connect together\n• GND: triangle pointing down ▽ or three decreasing lines ⏚ — all GND symbols connect together\n• Resistor: zigzag line (US style) or rectangle (EU/IEC style)\n• Capacitor: two parallel lines (electrolytic has a + sign on one plate)\n• LED: diode triangle + arrows pointing away (light emitting)\n• NPN transistor: vertical line with two diagonal lines and an arrow on the emitter pointing outward\n• Switch: a gap in a line with a movable lever\n• IC/chip: rectangle with labeled pins on the sides\n\n<strong>The most important rule:</strong>\nA dot where two wires cross = they ARE connected.\nTwo wires crossing with no dot = they are NOT connected (they just overlap on paper).\n\n<strong>Reading flow:</strong>\nTrace current from the power supply (VCC) through components to ground. Power flows top → bottom by convention. Signals flow left → right.\n\n<strong>Net labels:</strong>\nNames like DATA, CLK, TX, SCL label wire segments that connect to the same net even if drawn in different places on the schematic.`,
+        memory: `Schematic = a subway map, not a satellite photo. It shows you what connects to what (the logic), not where things physically sit. Like a recipe vs a photo of the dish — both describe the same thing, one is actually useful for following.\n\nDot = connected. No dot = just crossing. This one rule prevents hours of debugging.`,
+        examTip: `When building from a schematic, identify all the VCC and GND connections first. Then trace each signal path one at a time. Draw on a printout if it helps — mark wires as you connect them. A missed GND connection is the most common build error.`,
+        facts: ["Dot = connected", "No dot = crossing only", "VCC labels = same net", "GND symbols = same net", "Zigzag = resistor (US)", "Arrow out = NPN emitter", "Current: top to bottom"]
+      },
+
+      {
+        id: "voltage-divider",
+        title: "Voltage Dividers",
+        tags: ["basic"],
+        chain: ["Two resistors in series", "Voltage taps off the midpoint", "Output = fraction of input", "5V → 3.3V for level shifting", "Sensor + fixed R = analog reading"],
+        blurb: "Two resistors in series create a voltage divider — a fixed fraction of the input voltage appears at the midpoint. Used for level shifting, reading sensors, and creating reference voltages.",
+        detail: `<strong>Formula:</strong>\nVout = Vin × R2 / (R1 + R2)\nWhere R1 is between Vin and Vout, R2 is between Vout and GND.\n\n<strong>Examples:</strong>\n5V → 2.5V: R1 = 10 kΩ, R2 = 10 kΩ → Vout = 5 × 10/20 = 2.5 V\n5V → 3.3V: R1 = 10 kΩ, R2 = 20 kΩ → Vout = 5 × 20/30 = 3.33 V ✓\n\n<strong>Common uses:</strong>\n• Level shifting: convert 5V Arduino output to 3.3V for ESP32 or Pi\n• Reading a potentiometer: a pot is a built-in adjustable voltage divider\n• Reading a thermistor or LDR: pair the sensor with a fixed resistor → voltage changes with the measured quantity → feed into an ADC pin\n• Creating reference voltages for comparators\n\n<strong>Important limitations:</strong>\n• The output voltage changes if you connect a low-resistance load — keep load impedance much higher than R2\n• Not suitable for two-way level shifting (use a dedicated level shifter IC like TXB0108 or BSS138 for that)\n• Wastes some current continuously (P = Vin² / (R1+R2)) — use high resistances (10–100 kΩ) to minimize this`,
+        memory: `Voltage divider = adjusting the depth of a pool by adding a partial drain. R2 sets how much voltage "stays". Equal resistors = exactly half. Make R2 bigger relative to R1 = output voltage rises toward Vin.\n\nQuick mental check: output is always between 0V and Vin. If R2 >> R1, output ≈ Vin. If R2 << R1, output ≈ 0V.`,
+        examTip: `The 5V→3.3V divider (R1=10kΩ, R2=20kΩ) is the most commonly used. But for SPI/I2C level shifting at speed, use a proper level shifter IC — a voltage divider is one-directional and too slow for fast signals.`,
+        facts: ["Vout=Vin×R2/(R1+R2)", "5V→3.3V: R1=10k, R2=20k", "Pot = adjustable divider", "Thermistor + R = sensor divider", "Load affects output", "One-directional only", "Use high R to save power"]
+      },
+
+      {
+        id: "kirchhoffs-laws",
+        title: "Kirchhoff's Laws",
+        tags: ["basic"],
+        chain: ["Multiple paths in circuit", "KCL: current into node = current out", "KVL: voltages around loop sum to zero", "Apply to any junction or loop", "Foundation of all circuit analysis"],
+        blurb: "Two laws that govern every circuit: current can't pile up at a junction (KCL), and you can't gain or lose energy going around a loop (KVL). Everything else in circuit theory follows from these.",
+        detail: `<strong>KCL — Kirchhoff's Current Law:</strong>\nAt any node (junction), the sum of currents entering equals the sum of currents leaving.\nElectrons can't accumulate — what comes in must go out.\n\nExample: three wires meet at a node. 2A in from wire 1, 1.5A in from wire 2 → 3.5A must leave through wire 3.\n\n<strong>KVL — Kirchhoff's Voltage Law:</strong>\nAround any closed loop in a circuit, the sum of all voltage rises equals the sum of all voltage drops. The net change is zero.\n\nExample: 9V battery, two resistors R1=100Ω and R2=200Ω in series.\nKVL: 9V − VR1 − VR2 = 0\nCurrent: I = 9 / (100+200) = 30 mA\nVR1 = 0.030 × 100 = 3V, VR2 = 0.030 × 200 = 6V\nCheck: 3V + 6V = 9V ✓\n\n<strong>Why these matter in practice:</strong>\n• Verify your circuit design on paper before building\n• Debug: if measured voltages don't sum to zero around a loop, something is wrong\n• Analyze circuits with multiple branches and power sources`,
+        memory: `KCL = water pipe junction. Water in = water out. No water piles up at the junction.\nKVL = hiking a loop trail. Whatever altitude you gain going up, you lose going down. You always return to your starting height.\n\nUse KVL to find unknown voltages. Use KCL to find unknown currents at a junction.`,
+        examTip: `KVL is how you verify LED resistor calculations: Vsupply − Vresistor − Vled = 0. If they don't add up, something is wrong. Always do this sanity check on paper before powering a new circuit.`,
+        facts: ["KCL: ΣI_in = ΣI_out", "KVL: ΣV around loop = 0", "Current conserved at nodes", "Energy conserved in loops", "Apply to each loop separately", "Foundation of all circuit math"]
+      },
+
+      {
+        id: "datasheets",
+        title: "Reading Datasheets",
+        tags: ["basic"],
+        chain: ["Unfamiliar component", "Find manufacturer datasheet", "Check absolute max ratings first", "Find the pinout", "Copy the typical application circuit"],
+        blurb: "Datasheets are the official spec sheets for every electronic component. Reading just three sections — max ratings, pinout, and typical application — is enough to use any component correctly.",
+        detail: `<strong>The three sections you must read (in this order):</strong>\n\n1. <strong>Absolute Maximum Ratings</strong> — NEVER exceed these values. VCC max, pin voltage max, max current, temperature range. Exceeding any of these = component dies, often instantly. Read this first, every time.\n\n2. <strong>Pinout diagram</strong> — which physical pin does what. Cross-reference with the package type (DIP, SOT-23, QFN). Getting a pin wrong is the most common build error.\n\n3. <strong>Typical Application Circuit</strong> — a ready-made schematic showing how to wire the component. Copy this exactly for your first build. The engineers who designed the chip drew this — trust it.\n\n<strong>Other sections worth knowing:</strong>\n• Recommended Operating Conditions: the range you should actually use (has safety margin from the max ratings)\n• Electrical Characteristics: typical values — Vf, operating current, etc.\n• Timing Diagrams: for ICs with digital signals, shows when signals must be high/low\n• Register Map: for programmable chips, lists all configurable settings\n\n<strong>Where to find datasheets:</strong>\nSearch "[part number] datasheet" → manufacturer's site or datasheetspdf.com, alldatasheet.com. The manufacturer's PDF is always the authoritative source.`,
+        memory: `Datasheet = the owner's manual you should have read before breaking something. Three rules:\n1. Read max ratings FIRST (like checking weight limit before climbing a ladder)\n2. Get the pinout right (like knowing which wire is live before touching)\n3. Copy the typical application circuit exactly the first time (like following a recipe before improvising)\n\nAfter it works, then you customize.`,
+        examTip: `The typical application circuit is your best friend. Most beginners skip the datasheet entirely and wire things from memory or a random tutorial. One wrong pull-up value or missing decoupling cap causes hours of debugging. Copy the typical circuit. Every. Time.`,
+        facts: ["Abs max = never exceed", "Pinout = pin functions", "Typical circuit = copy first", "Operating conditions ≠ max ratings", "Register map = programmable settings", "Manufacturer PDF = authoritative"]
+      },
+
+    ]
+  },

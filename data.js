@@ -447,3 +447,109 @@ const SECTIONS = [
 
     ]
   },
+
+  {
+    id: "robotics-foundations",
+    icon: "🦾",
+    title: "Robotics Foundations",
+    subtitle: "Motors, sensors, and actuators — the muscles and senses of any robot or lab instrument",
+    concepts: [
+
+      {
+        id: "dc-motors",
+        title: "DC Motors",
+        tags: ["robo"],
+        chain: ["Voltage applied to terminals", "Current through coil creates magnetic field", "Field interacts with permanent magnet", "Shaft rotates", "Speed = PWM duty cycle, Direction = polarity"],
+        blurb: "DC motors spin when you apply voltage. Reverse polarity — they spin the other way. Speed is proportional to voltage. They're cheap, powerful, and the most common motor type in robotics.",
+        detail: `<strong>How they work:</strong>\nCurrent through a coil creates a magnetic field. This interacts with permanent magnets in the housing to push the rotor (Lorentz force). The commutator switches current direction to keep the rotation going.\n\n<strong>Control:</strong>\n• Speed: PWM — duty cycle sets average voltage → proportional speed\n• Direction: reverse polarity (swap + and − on the motor terminals)\n• Braking: short both terminals together = dynamic braking (motor resists rotation)\n\n<strong>Never connect directly to GPIO:</strong>\nDC motors draw 100 mA to several amps. GPIO pins handle 12–40 mA max. Direct connection = dead MCU pin. Always use a motor driver.\n\n<strong>Key specs to understand:</strong>\n• Stall current — max current when shaft is held still (can be 5–10× normal current)\n• No-load speed — RPM with no load\n• Stall torque — maximum torque before the motor stops\n• Operating voltage — the voltage range it's designed for\n\n<strong>Gear motors:</strong>\nA DC motor + gearbox = slower speed, much more torque. Most wheeled robots use gear motors (e.g., 6V 200RPM gear motor). The gearbox trades speed for force.`,
+        memory: `DC motor = a fan motor (same thing, different application). Apply voltage → spins. Swap + and − → spins the other way. More voltage → faster. Too much → too much current → smoke.\n\nGear motor = DC motor with a gearbox bolted on. Imagine pedaling a bicycle in a lower gear — slower but more force. Perfect for moving things.`,
+        examTip: `Always check the stall current of your motor and make sure your motor driver and power supply can handle it. A 1A rated gear motor can pull 5A+ at stall. Size your driver and supply for worst case, not nominal.`,
+        facts: ["PWM = speed control", "Polarity = direction", "Never direct to GPIO", "Stall current = worst case", "Gear motor = torque up", "L298N / DRV8833 = common drivers", "Dynamic brake = short terminals"]
+      },
+
+      {
+        id: "servo-motors",
+        title: "Servo Motors",
+        tags: ["robo"],
+        chain: ["PWM signal sent at 50Hz", "Servo reads pulse width", "Internal gears move to angle", "Potentiometer confirms position", "Holds angle under load"],
+        blurb: "Servo motors move to a specific angle and hold there. Built-in position feedback makes them accurate and self-correcting. Perfect for robotic arms, steering, camera gimbals, and anything needing precise angle control.",
+        detail: `<strong>How servos work:</strong>\nA DC motor + gearbox + potentiometer + control circuit. The pot measures current angle. The control circuit runs the motor until the angle matches the commanded position, then holds.\n\n<strong>Control signal:</strong>\nPWM at exactly 50 Hz (20 ms period). The pulse width encodes the angle:\n• 1.0 ms pulse → 0°\n• 1.5 ms pulse → 90° (center)\n• 2.0 ms pulse → 180°\n\n<strong>Types:</strong>\n• Standard hobby servo: 0–180° range, ~1–10 kg·cm torque. SG90 (small/cheap), MG996R (metal gear, stronger).\n• Continuous rotation servo: modified to spin continuously. Speed and direction controlled by pulse width around 1.5 ms center.\n• Digital servo: responds faster, holds position better under load than analog.\n• High-torque servo: 20–60+ kg·cm for robot arms.\n\n<strong>Power warning:</strong>\nServos draw significant current under load. Never power a servo from the Arduino 5V pin (500 mA max from USB). Use a separate 5–6V supply rated for the servo's stall current.\n\n<strong>Arduino Servo library:</strong>\n#include <Servo.h>\nServo myServo;\nmyServo.attach(9);\nmyServo.write(90);  // go to 90 degrees`,
+        memory: `Servo = cruise control for angle. You say "go to 90°" and it drives there, then holds against any force trying to move it. Like setting a volume knob to exactly 5 and having a robot hand hold it at exactly 5 no matter what.\n\nSG90 = the small cheap one (white plastic). MG996R = stronger metal gear version. Both use the same control signal.`,
+        examTip: `Servo jitter (constant small movements) usually means power supply noise — the servo is fighting voltage fluctuations. Fix: add a 100–470 µF electrolytic capacitor across the servo's power supply. This is one of the most common servo problems.`,
+        facts: ["50 Hz PWM signal", "1ms=0°, 1.5ms=90°, 2ms=180°", "Built-in position feedback", "SG90 = small hobby servo", "MG996R = metal gear stronger", "Separate power supply!", "Servo.write(0–180)", "kg·cm = torque rating"]
+      },
+
+      {
+        id: "stepper-motors",
+        title: "Stepper Motors",
+        tags: ["robo"],
+        chain: ["Coils energized in sequence", "Rotor aligns to each coil", "Fixed angle per step", "Count steps = know position", "No encoder needed for many applications"],
+        blurb: "Stepper motors move in precise fixed steps — 1.8° per step, 200 steps per revolution is typical. They give exact position control without encoders. The motor inside your 3D printer, CNC machine, and most lab syringe pumps.",
+        detail: `<strong>How they work:</strong>\nMultiple coils arranged around the stator. Energizing them in sequence causes the rotor to rotate by a fixed angle each time. The motor "clicks" from position to position.\n\n<strong>Step modes:</strong>\n• Full step: 1.8° per step, 200 steps/rev. Maximum torque.\n• Half step: 0.9° per step, 400 steps/rev. Smoother.\n• Microstepping (1/8, 1/16, 1/32): very smooth motion, less torque. Used in 3D printers.\n\n<strong>Types:</strong>\n• Bipolar (4 wires): more common, more torque. Requires H-bridge driver for each winding.\n• Unipolar (5–6 wires): easier to drive but less torque. Less common now.\n\n<strong>Common drivers:</strong>\n• A4988: 1 A per phase, up to 1/16 microstepping. The standard starter driver.\n• DRV8825: 1.5 A per phase, up to 1/32 microstepping. Better for bigger motors.\n• TMC2208/2209: very quiet (StealthChop), used in 3D printers.\n\n<strong>Open loop limitation:</strong>\nSteppers assume every commanded step was executed. Under overload they miss steps (stall) and lose position silently. That's why 3D printers home before every print.\n\n<strong>Lab use:</strong>\nSyringe pumps, peristaltic pumps, XY stages, valve actuators — all use steppers for repeatable precise movement.`,
+        memory: `Stepper = a ratchet wrench. Click, click, click — each click is an exact angle. Count the clicks = know where you are. No feedback needed (usually). Unlike a DC motor that spins freely, a stepper moves in locked discrete steps.\n\n200 steps/rev = 1.8° each. Move 100 steps = exactly half a revolution. Every time.`,
+        examTip: `Current limiting on the driver is critical. Set the Vref on the A4988 to limit current to what the motor is rated for. Too much current = motor overheats. Too little = weak, misses steps. The Vref potentiometer sets this — check the formula in the driver datasheet.`,
+        facts: ["1.8°/step = 200 steps/rev", "Bipolar = 4 wires", "A4988 = common driver", "DRV8825 = better/more current", "Microstepping = smoother", "Open loop = can miss steps", "Home before use", "Good for syringe pumps"]
+      },
+
+      {
+        id: "distance-sensors",
+        title: "Sensors — Distance & Proximity",
+        tags: ["robo"],
+        chain: ["Object in range", "Sensor emits signal (sound or light)", "Measures return time or intensity", "Calculates distance", "MCU reads result and acts"],
+        blurb: "Distance sensors let robots detect obstacles and measure how far away things are. Ultrasonic uses sound echoes. IR uses reflected light. Time-of-Flight lasers are the most accurate. Each has trade-offs.",
+        detail: `<strong>Ultrasonic — HC-SR04 (most common beginner sensor):</strong>\n• Emits 40 kHz sound pulse from TRIG pin, measures echo return time on ECHO pin\n• Range: 2 cm to 400 cm, accuracy ±3 mm\n• Blind spot: closer than 2 cm\n• Not affected by object color or transparency\n• Confused by soft/angled surfaces that absorb or deflect sound\n• Formula: distance (cm) = pulse duration (µs) × 0.034 / 2\n• Wiring: VCC (5V), GND, TRIG (output), ECHO (input)\n\n<strong>IR sensors:</strong>\n• Sharp GP2Y0A21: analog output, 10–80 cm range, reliable but non-linear\n• Generic obstacle detector: digital output, detects if something is within ~5–30 cm. Cheap but imprecise.\n• Line-following sensor pair: IR emitter + detector very close together, detects black vs white surface (low reflectance vs high)\n\n<strong>Time-of-Flight — VL53L0X / VL53L1X (best for lab work):</strong>\n• Laser-based, I2C interface\n• VL53L0X: up to 2 m, ±3% accuracy\n• VL53L1X: up to 4 m, better in low light\n• Consistent regardless of surface color or texture\n• Multiple sensors need different I2C addresses (use XSHUT pin to change)`,
+        memory: `Ultrasonic = bat sonar. Shout (TRIG pulse) → listen for echo (ECHO pin) → time × speed of sound / 2 = distance.\nIR = shining a flashlight and measuring the reflection brightness.\nToF = laser rangefinder — the most accurate of the three.\n\nFor lab hardware needing precision: use VL53L0X. For robots avoiding walls: HC-SR04 is fine.`,
+        examTip: `HC-SR04 ECHO pin outputs 5V on some boards — safe for Arduino but will damage an ESP32 GPIO. Add a voltage divider (10kΩ + 20kΩ) on the ECHO line when using with 3.3V systems.`,
+        facts: ["HC-SR04: 2–400cm", "Formula: d=t×0.034/2", "TRIG=output, ECHO=input", "VL53L0X = ToF laser I2C", "IR = color-dependent", "ECHO = 5V → needs divider for ESP32", "Line follower = IR pair"]
+      },
+
+      {
+        id: "imu-sensors",
+        title: "Sensors — IMU (Motion & Orientation)",
+        tags: ["robo"],
+        chain: ["Device moves in 3D space", "Accelerometer measures linear force", "Gyroscope measures rotation rate", "Combined = orientation estimate", "Sensor fusion reduces drift"],
+        blurb: "An IMU (Inertial Measurement Unit) measures motion and orientation. The MPU6050 gives you a 3-axis accelerometer and 3-axis gyroscope on one I2C chip — used in drones, balancing robots, and motion-controlled lab instruments.",
+        detail: `<strong>Accelerometer:</strong>\nMeasures linear acceleration — including gravity (always present at ~9.8 m/s²).\n• At rest flat on a desk: reads 0g on X, 0g on Y, 1g on Z (gravity pointing down)\n• Tilted: gravity component shifts between axes → you can calculate tilt angle\n• Noisy: vibrations appear as acceleration noise\n\n<strong>Gyroscope:</strong>\nMeasures angular velocity in degrees per second (°/s).\n• Integrate over time → angle estimate\n• Drifts over time: small errors accumulate into large position errors (gyro drift)\n\n<strong>Why you need both — sensor fusion:</strong>\n• Gyro alone: accurate short-term, drifts long-term\n• Accelerometer alone: noisy short-term, accurate long-term (gravity is stable)\n• Combined: complementary filter or Kalman filter gives best of both\n\n<strong>MPU6050 — the standard beginner IMU:</strong>\n• I2C address: 0x68 (AD0 pin LOW) or 0x69 (AD0 pin HIGH)\n• 3-axis accel: ±2/4/8/16 g selectable\n• 3-axis gyro: ±250/500/1000/2000 °/s selectable\n• Built-in DMP (Digital Motion Processor): does sensor fusion onboard, outputs quaternions\n• Library: I2Cdevlib MPU6050 or Adafruit MPU6050`,
+        memory: `Accelerometer = a ball in a bowl. Gravity always pulls the ball to the lowest point. Tilt the bowl = ball rolls, revealing direction of gravity = tilt angle.\nGyroscope = a spinning top. Resists changes in orientation, measures how fast it's rotating.\n\nTogether = the inner ear equivalent. One for short-term precision, one for long-term stability.`,
+        examTip: `For a self-balancing robot or drone, sensor fusion is non-negotiable. Start with the MPU6050 DMP — it handles fusion internally and outputs stable angles. Manual Kalman filter implementation is complex and rarely necessary for beginners.`,
+        facts: ["MPU6050 = most common beginner IMU", "I2C: 0x68 or 0x69", "3-axis accel + 3-axis gyro", "Accel = linear force", "Gyro drifts over time", "DMP = onboard fusion", "Complementary filter = simple fusion", "Quaternion = rotation math"]
+      },
+
+      {
+        id: "environmental-sensors",
+        title: "Sensors — Environmental",
+        tags: ["robo"],
+        chain: ["Physical quantity to measure", "Sensor transduces to voltage or digital", "MCU reads value", "Data processed or logged", "Action triggered or data stored"],
+        blurb: "Environmental sensors measure temperature, humidity, pressure, and light. These are the sensors you'll reach for most in bioinformatics lab automation — incubator monitoring, growth chamber control, and sample environment logging.",
+        detail: `<strong>Temperature & Humidity:</strong>\n• DHT22 — single-wire protocol, ±0.5°C, ±2–5% RH, 2-second sample interval. Good starting point.\n• SHT31 — I2C, ±0.3°C, ±2% RH, faster sampling. Better for lab use.\n• DS18B20 — 1-Wire protocol, ±0.5°C, waterproof version available. Multiple sensors on ONE wire. Excellent for liquid temperature in bioreactors.\n\n<strong>Pressure & Altitude:</strong>\n• BMP280 — I2C or SPI, barometric pressure + temperature. Can calculate altitude. Good for environmental logging.\n• BMP388 — more accurate successor, better for precise altitude.\n\n<strong>Light:</strong>\n• BH1750 — I2C, measures lux. Good for grow light automation.\n• TSL2561 — I2C, separates visible and infrared light.\n\n<strong>Gas & Air Quality:</strong>\n• MQ-2/MQ-3/MQ-135 — analog, various gases (smoke, alcohol, CO, NH3). Need 24–48hr warm-up for stable readings.\n• CCS811 — I2C, CO2 equivalent + VOC. Good for incubator air quality monitoring.\n\n<strong>For bioinformatics lab hardware specifically:</strong>\n• pH — Atlas Scientific EZO-pH module (I2C/UART, lab-grade accuracy). Requires calibration with buffer solutions.\n• Dissolved Oxygen — Atlas Scientific EZO-DO.\n• OD600 (optical density) — LED + photodetector + optical path. Reads cell culture density.`,
+        memory: `Think of it as building a lab instrument panel. DHT22 = thermometer + hygrometer. DS18B20 = probe thermometer for liquids. BMP280 = barometer. BH1750 = light meter. Atlas Scientific = the lab-grade upgrade path for any of these when you need real precision.\n\nDS18B20 tip: you can run 10 sensors on ONE pin using unique serial addresses. Perfect for a multi-zone temperature map of an incubator.`,
+        examTip: `Atlas Scientific sensors are expensive (~$40–150 each) but produce lab-grade data with proper calibration. For a prototype, start with DHT22 and DS18B20. Upgrade to SHT31 and Atlas Scientific when you need publishable accuracy.`,
+        facts: ["DHT22 = temp+humidity", "SHT31 = lab-grade I2C", "DS18B20 = waterproof, 1-Wire", "Multiple DS18B20 on one pin", "BMP280 = pressure+temp I2C", "BH1750 = lux I2C", "Atlas Scientific = lab-grade pH/DO", "CCS811 = CO2+VOC I2C"]
+      },
+
+      {
+        id: "actuators",
+        title: "Actuators Beyond Motors",
+        tags: ["robo"],
+        chain: ["MCU outputs signal", "Driver amplifies to load voltage/current", "Actuator converts electrical to physical", "Solenoid / pump / valve moves", "Physical process controlled"],
+        blurb: "Beyond motors, robots and lab hardware use solenoids, pumps, valves, and linear actuators. These are the components that let your code physically manipulate fluids, gases, and objects — the heart of lab automation.",
+        detail: `<strong>Solenoid:</strong>\nElectromagnetic coil pulls a metal plunger when energized. Instant on/off. Used for:\n• Solenoid valves — control fluid or gas flow (on/off)\n• Door locks, bolt actuators\nDrive with MOSFET + flyback diode. Common voltages: 5V, 12V, 24V.\n\n<strong>Peristaltic pump:</strong>\nRollers squeeze a flexible tube to move fluid. The fluid never contacts the pump mechanism — no contamination. DC motor drives the rollers. Speed controls flow rate.\n• Perfect for lab: easy to sterilize, swappable tubing, no valves needed\n• Used for precise liquid dispensing (cell media, reagents, buffer)\n• Calibrate: count steps or use a flow sensor for volumetric accuracy\n\n<strong>Solenoid valve (for fluids/gas):</strong>\nNormally-Closed (NC): valve closed when off, open when powered.\nNormally-Open (NO): valve open when off, closed when powered.\nFor lab automation: NC is usually safer (fails closed = no unintended flow).\n\n<strong>Linear actuator:</strong>\nDC motor + gearbox + leadscrew = linear motion. Precise, strong. Used for:\n• Syringe pumps (stepper motor version preferred for precision)\n• Lab stage positioning\n• Pressing / clamping mechanisms\n\n<strong>Relay for mains switching:</strong>\nTo control a 120V heater, pump, or fan from your MCU: use a relay or SSR. Never connect mains directly to MCU circuitry — use optoisolation.`,
+        memory: `Actuators = the muscles of your robot. Solenoid = a finger that pokes. Pump = controlled drooling. Valve = a faucet without a hand. Linear actuator = a piston.\n\nFor lab automation the peristaltic pump is king — fluid stays in the tube, nothing contaminates, easy to sterilize. It's the first actuator to learn for bioinformatics hardware.`,
+        examTip: `Always design fail-safe states. Solenoid valve: which position is safe if power is lost? Heater relay: should it default on or off on MCU crash? Design for the failure — use NC valves and NO relay contacts for heaters so a power loss stops heating.`,
+        facts: ["Solenoid = on/off valve", "Flyback diode always required", "Peristaltic = no contamination", "NC valve = safe default", "Linear actuator = leadscrew", "Peristaltic = DC motor driven", "Relay + optoisolator for mains", "Fail-safe design always"]
+      },
+
+      {
+        id: "motor-drivers",
+        title: "H-Bridge & Motor Drivers",
+        tags: ["robo"],
+        chain: ["MCU sends direction and speed signals", "H-bridge chip receives them", "Four transistors switch motor polarity", "Current flows forward or reverse", "Motor spins either direction at any speed"],
+        blurb: "An H-bridge is 4 transistors arranged to reverse a motor's current direction. Motor driver ICs package this up with protection circuitry. Every wheeled robot needs one.",
+        detail: `<strong>Why you need a motor driver:</strong>\n• MCU GPIO can't supply enough current (12–40 mA max vs motors needing 0.5–5 A)\n• Need to reverse motor direction\n• Need protection circuitry (flyback diodes, thermal shutdown, overcurrent)\n\n<strong>H-bridge concept:</strong>\n4 transistors in an "H" arrangement. Turning on the top-left + bottom-right pair → current flows forward. Top-right + bottom-left pair → current flows backward. PWM on the enable pin → speed control.\n\n<strong>Common motor driver ICs:</strong>\n• L298N (dual H-bridge module): the classic. 2 A per channel, 5–35 V. ~2V voltage drop (inefficient, gets warm). Has built-in diodes. ENA/ENB for PWM speed.\n• L9110S: small, cheap, 0.8 A per channel. Good for small hobby motors.\n• DRV8833: 1.5 A per channel, more efficient than L298N, less heat. Better choice for new projects.\n• TB6612FNG: 1.2 A continuous, 3.2 A peak per channel. Adafruit's favorite for robots.\n\n<strong>Wiring pattern (L298N example):</strong>\nIN1, IN2 → GPIO (direction)\nENA → PWM pin (speed)\nOUT1, OUT2 → motor terminals\nVCC → motor supply voltage\nGND → common ground with MCU`,
+        memory: `H-bridge = a train track switchboard with 4 switches. Flip left pair → train goes right. Flip right pair → train goes left. PWM on the main power = controls how fast the train moves.\n\nL298N = the classic beginner choice (cheap, everywhere, lots of tutorials). DRV8833 = the better modern choice (more efficient, less heat, same ease of use).`,
+        examTip: `The L298N has a 2V dropout — your motor only sees Vmotorsupply − 2V. Running a 6V motor from a 6V supply through L298N = only 4V at the motor. Use a 7.4V supply or switch to the more efficient DRV8833/TB6612 which have much lower dropout.`,
+        facts: ["4 transistors in H shape", "L298N = 2A dual, classic", "DRV8833 = efficient, 1.5A", "TB6612 = Adafruit favorite", "IN1/IN2 = direction", "ENA/ENB = PWM speed", "Built-in flyback diodes", "L298N: 2V dropout loss"]
+      },
+
+    ]
+  },

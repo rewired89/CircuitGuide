@@ -283,3 +283,85 @@ const SECTIONS = [
 
     ]
   },
+
+  {
+    id: "signals-communication",
+    icon: "📡",
+    title: "Signals & Communication",
+    subtitle: "How microcontrollers talk to sensors, displays, and each other",
+    concepts: [
+
+      {
+        id: "analog-vs-digital",
+        title: "Analog vs Digital Signals",
+        tags: ["micro"],
+        chain: ["Signal exists in the world", "Analog = any value continuously", "Digital = only 0 or 1", "ADC converts analog to digital", "DAC converts digital to analog"],
+        blurb: "Analog signals are continuous — any value is possible. Digital signals are binary — only HIGH or LOW. The real world is analog. Microcontrollers are digital. Sensors bridge the gap.",
+        detail: `<strong>Analog:</strong>\nCan be any value within a range (e.g., 0–5V continuously). Temperature, sound, light, pressure, pH — all naturally analog. More vulnerable to noise — a small spike changes the reading.\n\n<strong>Digital:</strong>\nOnly two valid states: HIGH (1) or LOW (0). Defined voltage thresholds:\n• Arduino 5V system: >3.5V = HIGH, <1.5V = LOW\n• 3.3V system: >2.0V = HIGH, <0.8V = LOW\nNoise-resistant — noise has to cross the threshold to corrupt data.\n\n<strong>ADC (Analog-to-Digital Converter):</strong>\nSamples an analog voltage at regular intervals and converts each sample to a digital number.\n• Arduino Uno: 10-bit ADC → 1024 steps (0–1023) over 0–5V → resolution = 5/1024 ≈ 4.9 mV per step\n• ESP32: 12-bit ADC → 4096 steps (0–4095) over 0–3.3V → resolution ≈ 0.8 mV per step\n• Raspberry Pi: NO built-in ADC — needs external IC (e.g., MCP3008 over SPI)\n\n<strong>DAC (Digital-to-Analog Converter):</strong>\nConverts a digital number back to a voltage. Used for audio output, setting precise analog voltages.\n• Arduino Uno: no DAC (uses PWM to approximate)\n• ESP32: two 8-bit DAC outputs on GPIO 25 and 26`,
+        memory: `Analog = a dimmer switch (infinite positions between off and full). Digital = a regular light switch (on or off, nothing between). ADC = taking a photo of the dimmer's position. DAC = setting the dimmer to match a number. Something is always lost in conversion — that's the resolution limit.`,
+        examTip: `Arduino analogRead() returns 0–1023. To convert to voltage: V = reading × (5.0 / 1023). For ESP32: V = reading × (3.3 / 4095). Never apply more than the ADC reference voltage to an analog pin — instant damage on ESP32 (3.3V max, NOT 5V tolerant).`,
+        facts: ["Analog = continuous", "Digital = 0 or 1", "Arduino ADC = 10-bit (1024 steps)", "ESP32 ADC = 12-bit (4096 steps)", "Pi = no ADC built-in", "ESP32 DAC: GPIO 25, 26", "5V→Arduino ADC ok, NOT ESP32"]
+      },
+
+      {
+        id: "pwm",
+        title: "PWM — Pulse Width Modulation",
+        tags: ["micro"],
+        chain: ["Digital pin only has 0 or 1", "Rapidly switch between them", "Vary the time spent HIGH", "Average voltage = duty cycle × VCC", "Controls motor speed, LED brightness, servo angle"],
+        blurb: "PWM rapidly switches a digital pin between HIGH and LOW. By varying the on-time ratio you simulate different voltage levels — how microcontrollers control motor speed, LED brightness, and servo position with only digital outputs.",
+        detail: `<strong>Duty cycle:</strong> percentage of time the signal is HIGH.\n• 0% = always LOW = 0V average\n• 25% = 25% HIGH = 1.25V average (from 5V)\n• 50% = half the time HIGH = 2.5V average\n• 100% = always HIGH = 5V average\n\n<strong>Frequency:</strong> how many on/off cycles per second (Hz).\n• Arduino default PWM: 490 Hz (most pins) or 980 Hz (pins 5 and 6)\n• Servo control requires: 50 Hz\n• LED dimming: any frequency above ~100 Hz (eye can't detect flicker)\n• Motors: 1–20 kHz typical\n\n<strong>Arduino usage:</strong>\nanalogWrite(pin, value) — value 0 (0%) to 255 (100%)\nPWM pins on Uno: 3, 5, 6, 9, 10, 11 (marked with ~ on the board)\n\n<strong>Why PWM works:</strong>\n• LEDs: your eye averages the flicker → appears dimmer\n• Motors: the motor's inductance smooths the pulses → runs at proportional speed\n• Servos: pulse width (not duty cycle) encodes the angle — 1ms=0°, 1.5ms=90°, 2ms=180° at 50Hz\n\n<strong>ESP32:</strong> All GPIO can do PWM via ledcWrite(). 16 channels, configurable frequency and resolution.`,
+        memory: `PWM = rapidly blinking a light to make it look dimmer. Blink faster than your eye can see → looks like it's half-bright if it's on 50% of the time. This same principle controls motor speed (motor averages the power) and servo angles (pulse width = angle command).`,
+        examTip: `Servo libraries handle the 50Hz timing for you — just call myServo.write(90) for 90°. For motor speed with a motor driver, use analogWrite(enablePin, 128) for ~50% speed. Remember: analogWrite is 0–255, not 0–100.`,
+        facts: ["Duty cycle = % time HIGH", "analogWrite: 0–255", "50% = half average voltage", "Servo: 50Hz, 1–2ms pulse", "PWM pins: 3,5,6,9,10,11 on Uno", "~symbol = PWM-capable pin", "ESP32: all GPIO can PWM"]
+      },
+
+      {
+        id: "uart-serial",
+        title: "UART / Serial",
+        tags: ["micro"],
+        chain: ["Two devices want to talk", "TX of one → RX of the other", "No clock wire — both agree on baud rate", "Data sent one bit at a time", "Simplest serial protocol"],
+        blurb: "UART is the simplest serial communication — just two wires, TX and RX. This is how an Arduino talks to your computer over USB, and how most GPS modules, Bluetooth modules, and cellular modems communicate.",
+        detail: `<strong>Two wires (plus shared GND):</strong>\n• TX — Transmit (output from this device)\n• RX — Receive (input to this device)\nCross them: your TX → their RX, their TX → your RX.\n\n<strong>Baud rate:</strong> bits per second. Both devices must be set to the same baud rate or data is garbage.\nCommon baud rates: 9600, 19200, 57600, 115200\n115200 is standard for most modern Arduino/ESP32 projects.\n\n<strong>Data frame:</strong> 1 start bit + 8 data bits + 1 stop bit = 10 bits per byte.\nAt 9600 baud: 9600 / 10 = 960 bytes per second.\n\n<strong>Voltage warning:</strong> 5V UART from Arduino into a 3.3V ESP32 RX pin = damage. Use a voltage divider or level shifter on the TX line when crossing voltage levels.\n\n<strong>Arduino:</strong>\nSerial.begin(115200) in setup()\nSerial.print() / Serial.println() — send data\nSerial.available() / Serial.read() — receive data\nOpen Serial Monitor in IDE (Ctrl+Shift+M), set matching baud rate.\n\n<strong>Common UART devices:</strong>\nGPS modules (NMEA sentences), HC-05/HC-06 Bluetooth, SIM800L GSM, OpenLog data logger`,
+        memory: `UART = walkie-talkies. Both must be on the same channel (baud rate). Your mouth (TX) goes to their ear (RX). Their mouth goes to your ear. If you both talk at the same time — garbage. Most UART is half-duplex in practice.\n\nMost common mistake: forgetting to cross TX→RX. TX→TX = silence. TX→RX = talking.`,
+        examTip: `On Arduino Uno, pins 0 (RX) and 1 (TX) are shared with the USB Serial. Don't use them while uploading or using the Serial Monitor. Use SoftwareSerial for a second UART on other pins, or an Arduino Mega which has 4 hardware UARTs.`,
+        facts: ["TX→RX (cross the wires)", "Baud must match both ends", "Common: 9600, 115200", "No clock wire (async)", "Serial.begin() sets baud", "5V TX → 3.3V RX = damage", "Arduino 0/1 = shared with USB"]
+      },
+
+      {
+        id: "i2c",
+        title: "I2C",
+        tags: ["micro"],
+        chain: ["Multiple devices, only two wires", "SDA = data line", "SCL = clock line", "Master sends device address", "Only matching device responds"],
+        blurb: "I2C lets many devices share just two wires. Every device has a unique 7-bit address. The master calls the address, only the right device answers. Perfect for connecting multiple sensors to one microcontroller.",
+        detail: `<strong>Two wires (plus GND):</strong>\n• SDA — Serial Data (bidirectional)\n• SCL — Serial Clock (master drives this)\n\n<strong>Addressing:</strong>\nEach device has a 7-bit address (0x00–0x7F = 128 possible). Some devices let you configure the last 1–3 bits with solder pads or address pins, so you can have multiple identical devices on one bus.\n\n<strong>Pull-up resistors:</strong>\nSDA and SCL must be pulled up to VCC with resistors — typically 4.7 kΩ for 100 kHz, 2.2 kΩ for 400 kHz. Many breakout boards include them. If not: add them yourself or nothing works.\n\n<strong>Speeds:</strong> Standard = 100 kHz, Fast = 400 kHz, Fast+ = 1 MHz\n\n<strong>Common I2C devices and addresses:</strong>\n• MPU6050 IMU — 0x68 (or 0x69 with AD0 high)\n• BMP280 pressure/temp — 0x76 or 0x77\n• SSD1306 OLED display — 0x3C (or 0x3D)\n• SHT31 temperature/humidity — 0x44\n• VL53L0X distance sensor — 0x29\n\n<strong>Arduino (Wire library):</strong>\nWire.begin() → Wire.beginTransmission(addr) → Wire.write(data) → Wire.endTransmission()\n\n<strong>I2C scanner:</strong> Run a scanner sketch to discover all connected device addresses. Essential for debugging.`,
+        memory: `I2C = a shared office intercom. Two wires to everyone (data + clock). Master presses a button (sends address) → only the matching extension picks up. One bus, many devices, each called by name.\n\nPull-ups are like the power supply to the intercom system — without them, nobody can hear anything.`,
+        examTip: `"I2C device not found" is the most common I2C error. Checklist: (1) correct SDA/SCL pins for your board, (2) pull-ups present (4.7 kΩ to VCC), (3) correct voltage (3.3V vs 5V), (4) run I2C scanner to confirm address. The scanner sketch is in Arduino IDE: File → Examples → Wire → i2c_scanner.`,
+        facts: ["2 wires: SDA + SCL", "7-bit addresses (0x00–0x7F)", "4.7kΩ pull-ups required", "100/400 kHz speeds", "Arduino: Wire library", "MPU6050 = 0x68", "SSD1306 OLED = 0x3C", "Scanner finds addresses"]
+      },
+
+      {
+        id: "spi",
+        title: "SPI",
+        tags: ["micro"],
+        chain: ["Master needs fast data transfer", "4 wires used", "MOSI / MISO / SCLK / CS", "Master controls clock", "CS selects one device at a time"],
+        blurb: "SPI is faster than I2C and uses 4 wires. It's used for displays, SD cards, and high-speed sensors. One dedicated Chip Select wire per device lets the master talk to each one individually.",
+        detail: `<strong>Four wires:</strong>\n• MOSI — Master Out Slave In (master sends data)\n• MISO — Master In Slave Out (slave sends data back)\n• SCLK (SCK) — Serial Clock (master controls)\n• CS (SS) — Chip Select, active LOW, one per device\n\n<strong>How it works:</strong>\nMaster pulls CS of target device LOW → sends/receives data synchronized with SCLK pulses → pulls CS HIGH when done. Other devices ignore traffic while their CS is HIGH.\n\n<strong>SPI vs I2C:</strong>\n• SPI: faster (MHz speeds), full-duplex, simpler hardware, no addressing needed\n• I2C: fewer wires, addressing built-in, slower, half-duplex\n• Rule of thumb: use I2C for sensors, SPI for displays and storage\n\n<strong>Arduino Uno SPI pins:</strong>\n10 = SS (CS), 11 = MOSI, 12 = MISO, 13 = SCK\n\n<strong>Common SPI devices:</strong>\n• SD card modules\n• TFT color displays (ILI9341, ST7789)\n• MCP3008 — adds 8 analog inputs to Raspberry Pi\n• High-speed IMUs (ICM-20948)\n• SPI flash memory\n\n<strong>Arduino (SPI library):</strong>\nSPI.begin() → digitalWrite(CS, LOW) → SPI.transfer(byte) → digitalWrite(CS, HIGH)`,
+        memory: `SPI = a dedicated phone line to each person. One wire to talk (MOSI), one to listen (MISO), a shared clock (SCLK), and a specific phone number per device (CS pin). Faster than I2C intercom but uses more wires. Best for things that need speed: displays, SD cards.`,
+        examTip: `Each SPI device needs its own CS pin from the MCU. Connecting 5 SPI devices = 5 CS pins used. On a pin-limited board like Arduino Uno, this adds up fast. Consider I2C devices where possible to save pins, or use an I2C/SPI GPIO expander.`,
+        facts: ["4 wires: MOSI/MISO/SCLK/CS", "CS per device (active LOW)", "Full duplex", "MHz speeds", "No pull-ups needed", "Arduino SPI: pins 10–13", "SD card = SPI", "ILI9341 display = SPI"]
+      },
+
+      {
+        id: "interrupts",
+        title: "Interrupts",
+        tags: ["micro"],
+        chain: ["Main program running", "Hardware event occurs on a pin", "CPU pauses main program instantly", "Runs the ISR function", "Returns to main program where it left off"],
+        blurb: "Interrupts let a microcontroller respond instantly to events without constantly checking (polling). A button press, sensor pulse, or timer fires the interrupt — the CPU drops everything, handles it, then resumes.",
+        detail: `<strong>Without interrupts — polling:</strong>\nwhile(true) { if(digitalRead(pin) == HIGH) { doSomething(); } }\nCPU wastes cycles checking constantly. Misses fast events if it's busy doing something else.\n\n<strong>With interrupts:</strong>\nattachInterrupt(digitalPinToInterrupt(pin), myISR, RISING);\nWhen the pin goes HIGH → CPU immediately pauses → runs myISR() → returns.\n\n<strong>Trigger modes:</strong>\n• RISING — fires when pin goes LOW → HIGH\n• FALLING — fires when pin goes HIGH → LOW\n• CHANGE — fires on either edge\n• LOW — fires continuously while pin is LOW (use sparingly)\n\n<strong>ISR rules — critical:</strong>\n• Keep ISR code SHORT and FAST — no Serial.print(), no delay(), no I2C/SPI calls\n• Variables shared between ISR and main loop MUST be declared volatile\n• Interrupts are disabled inside an ISR by default\n\n<strong>Arduino Uno interrupt pins:</strong> only 2 and 3.\nESP32 / Arduino Mega: any GPIO can be an interrupt pin.\n\n<strong>Timer interrupts:</strong>\nFire at precise regular intervals — not tied to a pin. Used for precise timing, PWM generation, sensor polling at exact rates. TimerOne library for Arduino. FreeRTOS tasks on ESP32.`,
+        memory: `Interrupt = a fire alarm at work. You don't stand at your desk all day checking "is there a fire?" (polling). The alarm sounds when there IS a fire (interrupt) → you respond immediately → go back to your desk. The key rule: keep the alarm response short. Don't investigate the whole building during the alarm — just trip the breaker and return.`,
+        examTip: `The volatile keyword is the most commonly forgotten ISR rule. Without it, the compiler may optimize away the variable, and the main loop never sees the updated value. Any variable written in an ISR and read outside it must be declared volatile.`,
+        facts: ["RISING/FALLING/CHANGE modes", "ISR = short + fast only", "volatile keyword required", "No delay() in ISR", "Uno: only pins 2, 3", "ESP32: any GPIO", "Timer interrupt = precise timing", "attachInterrupt()"]
+      },
+
+    ]
+  },

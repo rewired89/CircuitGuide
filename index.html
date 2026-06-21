@@ -5,28 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CircuitGuide — Electronics & Robotics Path</title>
   <meta name="description" content="Learn electronics and robotics the connected way. From Ohm's Law to building your own lab hardware — short, real, and built for how your brain works.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- Animated background -->
+<canvas id="bgCanvas"></canvas>
+<div id="cursorGlow"></div>
 
 <div class="app">
 
   <!-- ── Header ── -->
   <header>
-    <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+    <button class="menu-btn" id="menuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <a class="logo" href="#" onclick="location.reload()">Circuit<span>Guide</span></a>
     <div class="search-wrap">
-      <span class="search-icon">🔍</span>
+      <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="8.5" cy="8.5" r="5.5"/><path d="M17 17l-3.5-3.5"/>
+      </svg>
       <input
         type="search"
         id="search"
-        placeholder="Search concepts — Ohm's law, I2C, PID, servo..."
+        placeholder="Search — Ohm's law, I2C, PID, servo..."
         autocomplete="off"
         spellcheck="false"
       >
     </div>
     <div class="header-right">
-      <div class="progress-pill" id="progressPill">0/0 learned</div>
+      <div class="progress-pill" id="progressPill">
+        <span class="pill-num" id="pillNum">0</span>
+        <span class="pill-sep">/</span>
+        <span id="pillTotal">0</span>
+        <span class="pill-label">learned</span>
+      </div>
     </div>
   </header>
 
@@ -37,6 +53,9 @@
   <main id="main" role="main"></main>
 
 </div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
 <script src="app.js"></script>
